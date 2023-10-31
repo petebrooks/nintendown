@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "nintendown"
+version = "0.1.0"
+description = ""
+authors = ["Pete Brooks <lophochroa@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.13"
+pyperclip = "^1.8.2"
+scdl = "^2.7.3"
+
+[tool.poetry.group.dev.dependencies]
+pyinstaller = "^6.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
