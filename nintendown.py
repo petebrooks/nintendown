@@ -5,6 +5,7 @@ import pyperclip
 import re
 import scdl
 import time
+import os
 
 def validate_url(url):
     regex = re.compile(r"^(https?://)?(www\.)?soundcloud\.com/[\w\-/]+$")
@@ -16,7 +17,8 @@ def on_button_click():
     if url and validate_url(url):
         download_dir = filedialog.askdirectory(title='Select Download Directory')
         if download_dir:
-            command = f'cd {download_dir}; scdl -c -l {url}'
+            os.chdir(download_dir)
+            command = f'scdl -c -l {url}'
             print(f'Command: {command}')
             start_time = time.time()
             print(f'Start time: {time.ctime(start_time)}')
