@@ -4,6 +4,7 @@ import subprocess
 import pyperclip
 import re
 import scdl
+import time
 
 def validate_url(url):
     regex = re.compile(r"^(https?://)?(www\.)?soundcloud\.com/[\w\-/]+$")
@@ -13,9 +14,21 @@ def validate_url(url):
 def on_button_click():
     url = pyperclip.paste()
     if url and validate_url(url):
-        download_dir = filedialog.askdirectory(title="Select Download Directory")
+        download_dir = filedialog.askdirectory(title='Select Download Directory')
         if download_dir:
-            scdl.download(url, path=download_dir)
+            command = f'cd {download_dir}; scdl -c -l {url}'
+            print(f'Command: {command}')
+            start_time = time.time()
+            print(f'Start time: {time.ctime(start_time)}')
+            try:
+                subprocess.run(command, shell=True, check=True, stderr=subprocess.PIPE, text=True)
+                messagebox.showinfo("Success", "Download completed successfully")
+            except subprocess.CalledProcessError as e:
+                messagebox.showerror("Error", e.stderr)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f'End time: {time.ctime(end_time)}')
+            print(f'Time elapsed: {elapsed_time} seconds')
         else:
             messagebox.showinfo("Info", "Download cancelled")
     elif not url:
