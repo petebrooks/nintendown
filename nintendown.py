@@ -1,10 +1,10 @@
 import tkinter as tk
+from tkinter import ttk  # For Progressbar
 from tkinter import messagebox, filedialog
 import subprocess
+import threading
 import pyperclip
 import re
-import scdl
-import time
 import os
 
 
@@ -21,14 +21,14 @@ def validate_url(url):
 
 
 def download_audio(url, url_type, download_dir):
+    # Start the progress bar
+    progress_bar.start()
+
     if url_type == "soundcloud":
         command = f"scdl -c -l {url}"
     else:  # url_type == "youtube"
         command = f"youtube-dl -x --audio-format mp3 {url}"
 
-    print(f"Command: {command}")
-    start_time = time.time()
-    print(f"Start time: {time.ctime(start_time)}")
     try:
         subprocess.run(
             command, shell=True, check=True, stderr=subprocess.PIPE, text=True
@@ -36,9 +36,9 @@ def download_audio(url, url_type, download_dir):
         messagebox.showinfo("Success", "Download completed successfully")
     except subprocess.CalledProcessError as e:
         messagebox.showerror("Error", e.stderr)
-    end_time = time.time()
-    print(f"End time: {time.ctime(end_time)}")
-    print(f"Time elapsed: {elapsed_time} seconds")
+
+    # Stop the progress bar
+    progress_bar.stop()
 
 
 def on_button_click():
@@ -48,7 +48,7 @@ def on_button_click():
         download_dir = filedialog.askdirectory(title="Select Download Directory")
         if download_dir:
             os.chdir(download_dir)
-            download_audio(url, url_type, download_dir)
+            start_download_thread(url, url_type, download_dir)
         else:
             messagebox.showinfo("Info", "Download cancelled")
     elif not url:
@@ -57,16 +57,27 @@ def on_button_click():
         messagebox.showerror("Error", "Invalid URL")
 
 
-# Create the main window
+def start_download_thread(url, url_type, download_dir):
+    download_thread = threading.Thread(
+        target=download_audio, args=(url, url_type, download_dir)
+    )
+    download_thread.start()
+
+
+# GUI setup
 window = tk.Tk()
 window.title("NINTENDOWN")
 window.configure(bg="#EED5F7")
 
-# Padding around the button
 frame = tk.Frame(window, bg="#EED5F7")
-frame.pack(padx=80, pady=80)  # Adjust padding as per your aesthetic preference
+frame.pack(padx=80, pady=80)
 
-# Create a button
+# Add an indeterminate progress bar
+progress_bar = ttk.Progressbar(
+    frame, orient="horizontal", length=300, mode="indeterminate"
+)
+progress_bar.pack()
+
 button = tk.Button(
     frame,
     text="NINTENDOWNLOAD IT!",
